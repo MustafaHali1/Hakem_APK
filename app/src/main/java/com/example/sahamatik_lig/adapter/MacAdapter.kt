@@ -31,8 +31,9 @@ class MacAdapter(
             holder.binding.tvSkor.text = "VS"
         }
 
-        // Tıklamayı direkt root View (CardView) üzerine yazıyoruz
+        // Doğrudan root bileşene listener atıyoruz:
         holder.binding.root.setOnClickListener {
+            android.util.Log.d("TEST_TIKLAMA", "1. Adapter tıklamayı yakaladı: ${mac.takim1}")
             onMacClick(mac)
         }
     }

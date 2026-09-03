@@ -12,7 +12,6 @@ import com.example.sahamatik_lig.adapter.MacAdapter
 import com.example.sahamatik_lig.databinding.DialogSkorBinding
 import com.example.sahamatik_lig.databinding.FragmentMaclarBinding
 import com.example.sahamatik_lig.model.Mac
-import com.example.sahamatik_lig.util.FiksturHelper
 import java.util.ArrayList
 
 class MaclarFragment : Fragment() {
@@ -21,7 +20,8 @@ class MaclarFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var takimIsimleri: ArrayList<String>? = null
-    private var macListesi = ArrayList<Mac>()
+    private lateinit var macAdapter: MacAdapter
+    private lateinit var viewModel: LigViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,24 +40,24 @@ class MaclarFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel = androidx.lifecycle.ViewModelProvider(requireActivity())[LigViewModel::class.java]
 
+        // 🚀 KRİTİK DÜZELTME: Maçları yerel listeye değil, ViewModel'a yüklüyoruz!
         takimIsimleri?.let { takimlar ->
-            if (macListesi.isEmpty()) {
-                macListesi = FiksturHelper.fiksturOlustur(takimlar)
-            }
+            viewModel.ligiBaslat(takimlar)
         }
 
-        val adapter = MacAdapter(macListesi) { secilenMac ->
+        // Adapter'a ViewModel'ın yönettiği maç listesini veriyoruz
+        macAdapter = MacAdapter(viewModel.macListesi) { secilenMac ->
             showScoreDialog(secilenMac)
         }
 
         binding.rvMaclar.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvMaclar.adapter = adapter
+        binding.rvMaclar.adapter = macAdapter
     }
 
     private fun showScoreDialog(mac: Mac) {
         val dialogInflater = LayoutInflater.from(requireContext())
-        // XML adın dialog_skor.xml olduğu için DialogSkorBinding kullanıyoruz
         val dialogBinding = DialogSkorBinding.inflate(dialogInflater)
 
         dialogBinding.tvTakim1.text = mac.takim1
@@ -74,11 +74,8 @@ class MaclarFragment : Fragment() {
                 val s2 = dialogBinding.Skor2.text.toString().toIntOrNull()
 
                 if (s1 != null && s2 != null) {
-                    mac.skor1 = s1
-                    mac.skor2 = s2
-                    mac.isOynadi = true
-
-                    binding.rvMaclar.adapter?.notifyDataSetChanged()
+                    viewModel.skorGuncelle(mac, s1, s2)
+                    macAdapter.notifyDataSetChanged()
                     Toast.makeText(requireContext(), "Skor kaydedildi!", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(requireContext(), "Lütfen tüm skorları girin!", Toast.LENGTH_SHORT).show()

@@ -9,18 +9,22 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.sahamatik_lig.adapter.PuanDurumuAdapter
 import com.example.sahamatik_lig.databinding.FragmentSiralamaBinding
 import com.example.sahamatik_lig.model.TakimPuan
-
-
+import androidx.fragment.app.activityViewModels
 
 class SiralamaFragment : Fragment() {
-   private var _binding: FragmentSiralamaBinding?=null
+    private var _binding: FragmentSiralamaBinding? = null
     private val binding get() = _binding!!
     private var takimIsimleri: ArrayList<String>? = null
+
+    private val viewModel: LigViewModel by activityViewModels()
+
+    private lateinit var puanAdapter: PuanDurumuAdapter
+    private val puanListesi = ArrayList<TakimPuan>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-             takimIsimleri = it.getStringArrayList(ARG_TAKIMLAR)
+            takimIsimleri = it.getStringArrayList(ARG_TAKIMLAR)
         }
     }
 
@@ -35,16 +39,24 @@ class SiralamaFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Gelen takım isimlerini TakimPuan objelerine dönüştürüyoruz (Varsayılan 0 puanlı)
-        val puanListesi = ArrayList<TakimPuan>()
-        takimIsimleri?.forEach { takimAdi ->
-            puanListesi.add(TakimPuan(takimAdi = takimAdi))
+        // Adapter Kurulumu
+        puanAdapter = PuanDurumuAdapter(puanListesi)
+        binding.rvPuanDurumu.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvPuanDurumu.adapter = puanAdapter
+
+        // Takımları ViewModel'a ilet
+        takimIsimleri?.let {
+            viewModel.ligiBaslat(it)
         }
 
-        // Adapter Kurulumu
-        val adapter = PuanDurumuAdapter(puanListesi)
-        binding.rvPuanDurumu.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvPuanDurumu.adapter = adapter
+        // Skor girildikçe hesaplanan yeni puan durumunu tabloya bas
+        viewModel.puanDurumu.observe(viewLifecycleOwner) { siraliListe ->
+            if (siraliListe != null && siraliListe.isNotEmpty()) {
+                puanListesi.clear()
+                puanListesi.addAll(siraliListe)
+                puanAdapter.notifyDataSetChanged()
+            }
+        }
     }
 
     override fun onDestroyView() {
@@ -55,7 +67,6 @@ class SiralamaFragment : Fragment() {
     companion object {
         private const val ARG_TAKIMLAR = "takimlar"
 
-        // LigDetailActivity'de hata veren newInstance metodunu burada tanımladık!
         @JvmStatic
         fun newInstance(takimlar: ArrayList<String>) =
             SiralamaFragment().apply {
