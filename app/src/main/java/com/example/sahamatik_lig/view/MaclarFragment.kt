@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.sahamatik_lig.adapter.MacAdapter
 import com.example.sahamatik_lig.databinding.DialogSkorBinding
@@ -19,14 +20,21 @@ class MaclarFragment : Fragment() {
     private var _binding: FragmentMaclarBinding? = null
     private val binding get() = _binding!!
 
+    private var formatTipi: String = "KLASIK"
     private var takimIsimleri: ArrayList<String>? = null
+    private var gruplarMap: HashMap<String, ArrayList<String>>? = null
+    // MaclarFragment.kt içinde en üste:
+    private val viewModel: LigViewModel by activityViewModels()
+
     private lateinit var macAdapter: MacAdapter
-    private lateinit var viewModel: LigViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
+            formatTipi = it.getString(ARG_FORMAT, "KLASIK")
             takimIsimleri = it.getStringArrayList(ARG_TAKIMLAR)
+            @Suppress("UNCHECKED_CAST")
+            gruplarMap = it.getSerializable(ARG_GRUPLAR) as? HashMap<String, ArrayList<String>>
         }
     }
 
@@ -40,14 +48,16 @@ class MaclarFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = androidx.lifecycle.ViewModelProvider(requireActivity())[LigViewModel::class.java]
+        val viewModel = androidx.lifecycle.ViewModelProvider(requireActivity())[LigViewModel::class.java]
 
-        // 🚀 KRİTİK DÜZELTME: Maçları yerel listeye değil, ViewModel'a yüklüyoruz!
-        takimIsimleri?.let { takimlar ->
-            viewModel.ligiBaslat(takimlar)
+        if (formatTipi == "GRUP" && gruplarMap != null) {
+            viewModel.grupTurnuvasiBaslat(gruplarMap!!)
+        } else {
+            takimIsimleri?.let { takimlar ->
+                viewModel.ligiBaslat(takimlar)
+            }
         }
 
-        // Adapter'a ViewModel'ın yönettiği maç listesini veriyoruz
         macAdapter = MacAdapter(viewModel.macListesi) { secilenMac ->
             showScoreDialog(secilenMac)
         }
@@ -91,13 +101,25 @@ class MaclarFragment : Fragment() {
     }
 
     companion object {
+        private const val ARG_FORMAT = "format_tipi"
         private const val ARG_TAKIMLAR = "takimlar"
+        private const val ARG_GRUPLAR = "gruplar_map"
 
         @JvmStatic
         fun newInstance(takimlar: ArrayList<String>) =
             MaclarFragment().apply {
                 arguments = Bundle().apply {
+                    putString(ARG_FORMAT, "KLASIK")
                     putStringArrayList(ARG_TAKIMLAR, takimlar)
+                }
+            }
+
+        @JvmStatic
+        fun newInstanceGrup(gruplar: HashMap<String, ArrayList<String>>) =
+            MaclarFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_FORMAT, "GRUP")
+                    putSerializable(ARG_GRUPLAR, gruplar)
                 }
             }
     }

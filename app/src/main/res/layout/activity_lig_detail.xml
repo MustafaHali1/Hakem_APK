@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFFFFF">
+    android:background="#F8F9FA">
 
-    <!-- Üst Yeşil Başlık BARI -->
+    <!-- Üst Yeşil Başlık Barı -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
@@ -18,11 +19,11 @@
             android:id="@+id/tvBack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="&lt;-"
+            android:text="←"
             android:textColor="#FFFFFF"
-            android:textSize="20sp"
+            android:textSize="22sp"
             android:textStyle="bold"
-            android:paddingEnd="16dp"/>
+            android:paddingEnd="16dp" />
 
         <TextView
             android:id="@+id/tvLigTitle"
@@ -30,39 +31,46 @@
             android:layout_height="wrap_content"
             android:text="Lig Detayı"
             android:textColor="#FFFFFF"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Sıralama / Maçlar Butonları -->
+    <!-- Sıralama / Maçlar Sekme Barı (Hap Tasarım) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center"
-        android:padding="16dp">
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="10dp"
+        android:background="#FFFFFF">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSiralama"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="44dp"
             android:layout_weight="1"
             android:text="Sıralama"
-            android:backgroundTint="#00C853"
+            android:textSize="14sp"
+            android:textStyle="bold"
             android:textColor="#FFFFFF"
-            android:layout_marginEnd="8dp"/>
+            app:backgroundTint="#00C853"
+            app:cornerRadius="22dp"
+            android:layout_marginEnd="8dp" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnMaclar"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="44dp"
             android:layout_weight="1"
             android:text="Maçlar"
-            android:backgroundTint="#D9D9D9"
-            android:textColor="#000000"/>
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            app:backgroundTint="#E0E0E0"
+            app:cornerRadius="22dp" />
     </LinearLayout>
 
-    <!-- Fragment'ların Yükleneceği Kutu (Container) -->
+    <!-- İçerik Alanı: Grupların alt alta listeleneceği Fragment buraya oturur -->
     <FrameLayout
         android:id="@+id/fragmentContainer"
         android:layout_width="match_parent"

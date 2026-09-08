@@ -32,4 +32,10 @@ class LigAdapter(
             }
         }
     }
+
+    companion object {
+        fun notifyDataSetChanged() {
+            TODO("Not yet implemented")
+        }
+    }
 }

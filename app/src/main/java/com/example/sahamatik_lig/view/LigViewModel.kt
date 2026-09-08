@@ -96,4 +96,38 @@ class LigViewModel : ViewModel() {
 
         _puanDurumu.value = siraliListe
     }
+
+    fun grupTurnuvasiBaslat(gruplar: Map<String, List<String>>) {
+        if (macListesi.isEmpty()) {
+            val yeniMaclar = ArrayList<Mac>()
+            var idSayac = 1
+
+            for ((_, takimListesi) in gruplar) {
+                for (takim in takimListesi) {
+                    if (!takimlar.contains(takim)) {
+                        takimlar.add(takim)
+                    }
+                }
+
+                // Her grubun kendi içindeki maçları (Ön ek OLMADAN, temiz isimle)
+                for (i in 0 until takimListesi.size) {
+                    for (j in i + 1 until takimListesi.size) {
+                        yeniMaclar.add(
+                            Mac(
+                                id = idSayac++,
+                                hafta = 1,
+                                takim1 = takimListesi[i].trim(), // Temiz takım adı
+                                takim2 = takimListesi[j].trim(), // Temiz takım adı
+                                skor1 = null,
+                                skor2 = null,
+                                isOynadi = false
+                            )
+                        )
+                    }
+                }
+            }
+            macListesi.addAll(yeniMaclar)
+        }
+        puanDurumunuHesapla()
+    }
 }
